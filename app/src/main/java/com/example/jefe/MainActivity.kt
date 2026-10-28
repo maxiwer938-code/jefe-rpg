@@ -12,7 +12,6 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import org.json.JSONArray
 
 data class PreguntaJefe(
     val pregunta: String,
@@ -30,21 +29,33 @@ class MainActivity : AppCompatActivity() {
 
     private val jefes = listOf(
         Jefe(
-            "El Goblin de la Cueva",
+            "El Orco de los Videojuegos",
             100,
             listOf(
-                PreguntaJefe("¿Cuánto es 2 + 2?", listOf("3", "4", "5", "6"), 1),
-                PreguntaJefe("¿Cuál es la capital de Argentina?", listOf("Córdoba", "Buenos Aires", "Rosario", "Mendoza"), 1),
-                PreguntaJefe("¿Qué color se forma mezclando azul y amarillo?", listOf("Verde", "Rojo", "Naranja", "Violeta"), 0)
+                PreguntaJefe("¿Cómo se llama el plomero protagonista de Nintendo?", listOf("Sonic", "Mario", "Link", "Donkey Kong"), 1),
+                PreguntaJefe("¿En qué juego picás bloques y construís mundos con cubos?", listOf("Minecraft", "Tetris", "Pac-Man", "God of War"), 0),
+                PreguntaJefe("¿Cuál es el estudio creador de Fortnite?", listOf("Valve", "Ubisoft", "Epic Games", "EA Sports"), 2),
+                PreguntaJefe("¿Cómo se llama el erizo azul de SEGA?", listOf("Knuckles", "Tails", "Shadow", "Sonic"), 3)
             )
         ),
         Jefe(
-            "El Gran Monstruo de Electricidad",
+            "El Titán del Cine y la Ciencia",
+            150,
+            listOf(
+                PreguntaJefe("¿Qué planeta es conocido como el planeta rojo?", listOf("Venus", "Júpiter", "Marte", "Saturno"), 2),
+                PreguntaJefe("¿Quién dirige las películas de Matrix?", listOf("Las hermanas Wachowski", "Steven Spielberg", "Christopher Nolan", "Quentin Tarantino"), 0),
+                PreguntaJefe("¿Cuál es el elemento químico representado por el símbolo 'Au'?", listOf("Plata", "Oro", "Cobre", "Hierro"), 1),
+                PreguntaJefe("¿En qué año llegó el hombre a la Luna?", listOf("1959", "1969", "1979", "1985"), 1)
+            )
+        ),
+        Jefe(
+            "El Dragón Galáctico del Deporte",
             200,
             listOf(
-                PreguntaJefe("¿Qué fenómeno genera una f.e.m. al cortar líneas magnéticas?", listOf("Inducción electromagnética", "Resistencia", "Capacitancia", "Cortocircuito"), 0),
-                PreguntaJefe("¿Qué dispositivo endereza la corriente alternada?", listOf("Transformador", "Colector o conmutador", "Reóstato", "Batería"), 1),
-                PreguntaJefe("¿Qué ley define el sentido de la f.c.e.m. en un motor?", listOf("Ley de Ohm", "Ley de Lenz", "Ley de Watt", "Ley de Coulomb"), 1)
+                PreguntaJefe("¿Cuántos jugadores por equipo juegan un partido de fútbol oficial en cancha?", listOf("9", "10", "11", "12"), 2),
+                PreguntaJefe("¿En qué país se inventó el básquetbol?", listOf("Estados Unidos", "Brasil", "Inglaterra", "España"), 0),
+                PreguntaJefe("¿Qué selección ganó el Mundial de Fútbol de Qatar 2022?", listOf("Francia", "Brasil", "Argentina", "Alemania"), 2),
+                PreguntaJefe("¿Cuántos anillos dorados colecciona Sonic en sus aventuras clásicas?", listOf("Ninguno en particular como límite fijo", "10", "50", "100"), 3)
             )
         )
     )
@@ -59,8 +70,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var contenedor: LinearLayout
     private lateinit var tiempoView: TextView
-    private lateinit var vidaJefeView: TextView
-    private lateinit var vidaJugadorView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,8 +116,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun mostrarPantallaInicio() {
         contenedor.removeAllViews()
-        texto("Batalla RPG: Derrota al Jefe", 28f)
-        texto("Respondé bien las preguntas para atacarlo antes de que se acaben tus vidas.", 16f, 16)
+        texto("⚔️ RPG Trivia: Batalla de Jefes", 26f)
+        texto("Derrota a los jefes respondiendo preguntas de cultura general, videojuegos y deportes antes de quedarte sin vidas.", 16f, 16)
         boton("¡Comenzar Aventura!") {
             jefeActualIndex = 0
             empezarJefe()
@@ -142,7 +151,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (indicePregunta >= jefe.preguntas.size) {
-            indicePregunta = 0 // Reinicia preguntas si el jefe resiste mucho
+            indicePregunta = 0
         }
 
         respondida = false
@@ -150,9 +159,9 @@ class MainActivity : AppCompatActivity() {
         contenedor.removeAllViews()
 
         // Interfaz de Batalla
-        texto("⚔️ JEFE: ${jefe.nombre}", 22f)
-        vidaJefeView = texto("❤️ Vida del Jefe: $vidaJefe / ${jefe.vidaMaxima}", 18f, 8)
-        vidaJugadorView = texto("🛡️ Tus Vidas: " + "♥".repeat(vidaJugador), 18f, 8)
+        texto("🎯 JEFE: ${jefe.nombre}", 22f)
+        texto("❤️ Vida del Jefe: $vidaJefe / ${jefe.vidaMaxima}", 18f, 8)
+        texto("🛡️ Tus Vidas: " + "♥".repeat(vidaJugador), 18f, 8)
         tiempoView = texto("⏱️ Tiempo: 15", 16f, 8)
         
         texto("\n💬 ${p.pregunta}", 20f, 16)
@@ -192,17 +201,15 @@ class MainActivity : AppCompatActivity() {
         timer?.cancel()
 
         if (acierto) {
-            vidaJefe -= 35 // Daño al jefe
+            vidaJefe -= 40 // Daño contundente al jefe
             for (b in botones) {
                 if (b.text.toString() == correctaTexto) b.setBackgroundColor(Color.GREEN)
             }
         } else {
-            vidaJugador-- // Daño al jugador
+            vidaJugador-- // El jefe te castiga
             for (b in botones) {
                 if (b.text.toString() == correctaTexto) {
                     b.setBackgroundColor(Color.GREEN)
-                } else if (b.isPressed) {
-                    b.setBackgroundColor(Color.RED)
                 }
             }
         }
@@ -216,7 +223,7 @@ class MainActivity : AppCompatActivity() {
     private fun mostrarVictoriaParcial() {
         contenedor.removeAllViews()
         texto("🎉 ¡Derrotaste al jefe!", 26f)
-        texto("Pasaste al siguiente nivel de la mazmorra.", 16f, 16)
+        texto("¡Avanzás al siguiente nivel de la mazmorra!", 16f, 16)
         boton("Siguiente Batalla") {
             empezarJefe()
         }
@@ -225,7 +232,7 @@ class MainActivity : AppCompatActivity() {
     private fun mostrarVictoriaTotal() {
         contenedor.removeAllViews()
         texto("🏆 ¡VICTORIA ÉPICA!", 28f)
-        texto("¡Derrotaste a todos los jefes y salvaste el mundo!", 18f, 16)
+        texto("¡Derrotaste a todos los jefes y completaste el juego!", 18f, 16)
         boton("Jugar de nuevo") {
             mostrarPantallaInicio()
         }
