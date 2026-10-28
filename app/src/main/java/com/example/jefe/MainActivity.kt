@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -22,6 +23,7 @@ data class PreguntaJefe(
 data class Jefe(
     val nombre: String,
     val vidaMaxima: Int,
+    val imagenRes: String, // Nombre de la imagen en drawable
     val preguntas: List<PreguntaJefe>
 )
 
@@ -31,31 +33,21 @@ class MainActivity : AppCompatActivity() {
         Jefe(
             "El Orco de los Videojuegos",
             100,
+            "goblin", // Buscará res/drawable/goblin.png (o usará un ícono por defecto si no está)
             listOf(
                 PreguntaJefe("¿Cómo se llama el plomero protagonista de Nintendo?", listOf("Sonic", "Mario", "Link", "Donkey Kong"), 1),
                 PreguntaJefe("¿En qué juego picás bloques y construís mundos con cubos?", listOf("Minecraft", "Tetris", "Pac-Man", "God of War"), 0),
-                PreguntaJefe("¿Cuál es el estudio creador de Fortnite?", listOf("Valve", "Ubisoft", "Epic Games", "EA Sports"), 2),
-                PreguntaJefe("¿Cómo se llama el erizo azul de SEGA?", listOf("Knuckles", "Tails", "Shadow", "Sonic"), 3)
+                PreguntaJefe("¿Cuál es el estudio creador de Fortnite?", listOf("Valve", "Ubisoft", "Epic Games", "EA Sports"), 2)
             )
         ),
         Jefe(
             "El Titán del Cine y la Ciencia",
             150,
+            "titan",
             listOf(
                 PreguntaJefe("¿Qué planeta es conocido como el planeta rojo?", listOf("Venus", "Júpiter", "Marte", "Saturno"), 2),
                 PreguntaJefe("¿Quién dirige las películas de Matrix?", listOf("Las hermanas Wachowski", "Steven Spielberg", "Christopher Nolan", "Quentin Tarantino"), 0),
-                PreguntaJefe("¿Cuál es el elemento químico representado por el símbolo 'Au'?", listOf("Plata", "Oro", "Cobre", "Hierro"), 1),
-                PreguntaJefe("¿En qué año llegó el hombre a la Luna?", listOf("1959", "1969", "1979", "1985"), 1)
-            )
-        ),
-        Jefe(
-            "El Dragón Galáctico del Deporte",
-            200,
-            listOf(
-                PreguntaJefe("¿Cuántos jugadores por equipo juegan un partido de fútbol oficial en cancha?", listOf("9", "10", "11", "12"), 2),
-                PreguntaJefe("¿En qué país se inventó el básquetbol?", listOf("Estados Unidos", "Brasil", "Inglaterra", "España"), 0),
-                PreguntaJefe("¿Qué selección ganó el Mundial de Fútbol de Qatar 2022?", listOf("Francia", "Brasil", "Argentina", "Alemania"), 2),
-                PreguntaJefe("¿Cuántos anillos dorados colecciona Sonic en sus aventuras clásicas?", listOf("Ninguno en particular como límite fijo", "10", "50", "100"), 3)
+                PreguntaJefe("¿Cuál es el elemento químico representado por el símbolo 'Au'?", listOf("Plata", "Oro", "Cobre", "Hierro"), 1)
             )
         )
     )
@@ -116,8 +108,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun mostrarPantallaInicio() {
         contenedor.removeAllViews()
-        texto("⚔️ RPG Trivia: Batalla de Jefes", 26f)
-        texto("Derrota a los jefes respondiendo preguntas de cultura general, videojuegos y deportes antes de quedarte sin vidas.", 16f, 16)
+        texto("⚔️ RPG Trivia: Batalla con Imágenes", 26f)
+        texto("Derrota a los jefes respondiendo correctamente. ¡Ahora con visuales en pantalla!", 16f, 16)
         boton("¡Comenzar Aventura!") {
             jefeActualIndex = 0
             empezarJefe()
@@ -157,6 +149,18 @@ class MainActivity : AppCompatActivity() {
         respondida = false
         val p = jefe.preguntas[indicePregunta]
         contenedor.removeAllViews()
+
+        // Imagen del Jefe (Si existe en drawable, la muestra; sino, se saltea sin romper nada)
+        val imgView = ImageView(this)
+        val imageResId = resources.getIdentifier(jefe.imagenRes, "drawable", packageName)
+        if (imageResId != 0) {
+            imgView.setImageResource(imageResId)
+            val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 400)
+            lp.bottomMargin = 16
+            imgView.layoutParams = lp
+            imgView.scaleType = ImageView.ScaleType.CENTER_CROP
+            contenedor.addView(imgView)
+        }
 
         // Interfaz de Batalla
         texto("🎯 JEFE: ${jefe.nombre}", 22f)
@@ -201,12 +205,12 @@ class MainActivity : AppCompatActivity() {
         timer?.cancel()
 
         if (acierto) {
-            vidaJefe -= 40 // Daño contundente al jefe
+            vidaJefe -= 50
             for (b in botones) {
                 if (b.text.toString() == correctaTexto) b.setBackgroundColor(Color.GREEN)
             }
         } else {
-            vidaJugador-- // El jefe te castiga
+            vidaJugador--
             for (b in botones) {
                 if (b.text.toString() == correctaTexto) {
                     b.setBackgroundColor(Color.GREEN)
@@ -223,7 +227,7 @@ class MainActivity : AppCompatActivity() {
     private fun mostrarVictoriaParcial() {
         contenedor.removeAllViews()
         texto("🎉 ¡Derrotaste al jefe!", 26f)
-        texto("¡Avanzás al siguiente nivel de la mazmorra!", 16f, 16)
+        texto("¡Avanzás al siguiente nivel!", 16f, 16)
         boton("Siguiente Batalla") {
             empezarJefe()
         }
@@ -232,7 +236,7 @@ class MainActivity : AppCompatActivity() {
     private fun mostrarVictoriaTotal() {
         contenedor.removeAllViews()
         texto("🏆 ¡VICTORIA ÉPICA!", 28f)
-        texto("¡Derrotaste a todos los jefes y completaste el juego!", 18f, 16)
+        texto("¡Completaste todos los jefes!", 18f, 16)
         boton("Jugar de nuevo") {
             mostrarPantallaInicio()
         }
@@ -241,7 +245,7 @@ class MainActivity : AppCompatActivity() {
     private fun mostrarDerrota() {
         contenedor.removeAllViews()
         texto("💀 ¡GAME OVER!", 28f)
-        texto("El jefe te ha vencido en combate.", 18f, 16)
+        texto("El jefe te derrotó.", 18f, 16)
         boton("Reintentar batalla") {
             empezarJefe()
         }
